@@ -1,0 +1,53 @@
+
+<div class="containerInDetail position-relative shadow-lg">
+  <a (click)="pokemonList()">
+  <div class="position-absolute top-0 start-0 w-50 h-50" id="pokemonImageDiv">
+    <img src="{{pokemon.image}}" id="pokemonImage">
+  </div>
+  <div class="position-absolute top-0 end-0 w-50 h-50">
+    <div class="mt-5">
+      <p>Type</p>
+      <ng-container *ngFor="let type of pokemon.types">
+        <div *ngFor="let typeColor of typesColor" class="d-inline">
+            <span *ngIf="type === typeColor.name" class="badge rounded-pill fs-6 mx-2" [style.background-color]= "typeColor.color">{{type}}</span>
+        </div>
+      </ng-container>
+    </div>
+    <div class="mt-5">
+      <p>Abilities</p>
+      <ng-container *ngFor="let ability of pokemon.abilities">
+        <p class="d-inline">
+          <span class="text-capitalize fs-4 me-3">{{ ability }}</span>
+        </p>
+      </ng-container>
+    </div>
+  </div>
+  <div class="position-absolute bottom-0 start-0 w-50 h-50 text-center">
+    <div>
+      <p class="d-inline text-capitalize fs-4">{{ pokemon.name }}</p>
+    </div>
+    <div>
+      <p class="d-inline text-capitalize fs-4">{{ pokemon.generation }}</p>
+    </div>
+    <div>
+      <p class="d-inline fs-3">Height </p>
+      <p class="d-inline fs-4">{{ pokemon.height }}</p>
+    </div>
+    <div>
+      <p class="d-inline fs-3">Weight </p>
+      <p class="d-inline fs-4">{{ pokemon.weight }}</p>
+    </div>
+  </div>
+  <div class="position-absolute bottom-0 end-0 w-50 h-50">
+    <ng-container *ngFor="let stat of pokemon.stats">
+      <div class="mb-3 container" *ngFor="let statColor of statsColor">
+        <ng-container *ngIf="stat.name === statColor.name">
+        <p class="text-capitalize badge fs-6 d-inline" [style.background-color]="statColor.color">{{ stat.name }}</p>
+        <p class="d-inline mx-2">{{ stat.baseStat }}</p>
+        </ng-container>
+      </div>
+    </ng-container>
+  </div>
+  </a>
+</div>
+

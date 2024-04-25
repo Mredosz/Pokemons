@@ -1,0 +1,6 @@
+.text-bg-primary {
+  font-size: 15px;
+}
+.card:hover{
+  box-shadow: 8px 8px 40px 6px rgba(0, 0, 0, 1);
+}

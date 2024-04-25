@@ -1,0 +1,12 @@
+<div class="container">
+  <div class="row mt-5">
+    <div *ngFor="let pokemon of pokemons" class="col-xl-3 mb-3">
+      <a (click)="pokemonDetails(pokemon.id)" class="link-underline-opacity-0 link-underline">
+        <div class="card">
+          <img src="{{pokemon.image}}">
+          <h5 class="card-header text-center text-capitalize">{{pokemon.name}}</h5>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

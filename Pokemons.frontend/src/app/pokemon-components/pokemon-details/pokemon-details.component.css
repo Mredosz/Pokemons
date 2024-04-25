@@ -1,0 +1,18 @@
+.containerInDetail {
+  height: 607px;
+  width: 1027px;
+  margin: 4% 17%;
+  border-radius: 25px;
+  outline: solid 1px black;
+  background-color: aliceblue;
+}
+
+#pokemonImage {
+  width: 55%;
+}
+
+#pokemonImageDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
