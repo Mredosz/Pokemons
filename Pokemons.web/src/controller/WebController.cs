@@ -1,12 +1,10 @@
-using Azure;
 using Microsoft.AspNetCore.Mvc;
-using Pokemons.data.model;
 using Pokemons.web.contract;
 using Pokemons.web.service;
 
 namespace Pokemons.web.controller;
-[Controller]
-public class WebController : Controller
+[ApiController]
+public class WebController : ControllerBase
 {
     private IPokemonService _service;
 

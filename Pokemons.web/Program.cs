@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Pokemons.data;
 using Pokemons.web.service;
@@ -12,6 +11,7 @@ builder.Services.AddScoped<DbPokemonContext>();
 builder.Services.AddDbContext<DbPokemonContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

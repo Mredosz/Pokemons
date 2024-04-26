@@ -1,45 +1,91 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Pokemons.data;
+using Pokemons.data.model;
 using Pokemons.web.contract;
+using Stats = Pokemons.web.contract.Stats;
 
 namespace Pokemons.web.service;
 
 public class PokemonService : IPokemonService
 {
     private DbPokemonContext _db;
+    private IMemoryCache _memoryCache;
+    public string CacheKey = "pokemons";
 
-    public PokemonService(DbPokemonContext db)
+    public PokemonService(DbPokemonContext db, IMemoryCache memoryCache)
     {
         _db = db;
+        _memoryCache = memoryCache;
     }
 
     public List<PokemonSummaryDto> GetAllPokemons()
     {
-        List<PokemonSummaryDto> pokemons = new List<PokemonSummaryDto>();
-        foreach (var pokemon in _db.Pokemon.Include(p => p.Image).ToList())
+        List<PokemonSummaryDto> pokemons;
+        if (!_memoryCache.TryGetValue(CacheKey, out pokemons))
         {
-            pokemons.Add(new PokemonSummaryDto
-            {
-                Id = pokemon.Id,
-                Name = pokemon.Name,
-                Image = pokemon.Image.Url
-            });
+            pokemons = new List<PokemonSummaryDto>();
+            MapPokemonList(pokemons);
+
+            _memoryCache.Set(CacheKey, pokemons,
+                new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(10)));
         }
         return pokemons;
     }
 
+    private void MapPokemonList(List<PokemonSummaryDto> pokemons)
+    {
+        var pokemonEntities = _db?.Pokemon?.Include(p => p.Image).ToList();
+        if (pokemonEntities != null)
+        {
+            foreach (var pokemon in pokemonEntities)
+            {
+                if (pokemon != null && pokemon.Image != null)
+                {
+                    pokemons.Add(new PokemonSummaryDto
+                    {
+                        Id = pokemon.Id,
+                        Name = pokemon.Name,
+                        Image = pokemon.Image.Url
+                    });
+                }
+            }
+        }
+    }
+
     public PokemonDto GetPokemonById(int id)
     {
-        var pokemonFromDb = _db.Pokemon
-            .Include(p =>p.Abilities)
-            .ThenInclude(p => p.Ability)
-            .Include(p => p.Generation)
-            .Include(p => p.Image)
-            .Include(p => p.Stats)
-            .ThenInclude(p => p.Stats)
-            .Include(p => p.Types)
-            .ThenInclude(p => p.Type)
-            .FirstOrDefault(p => p.Id == id);
+        string cacheKey = $"pokemon-{id}";
+        if (!_memoryCache.TryGetValue(cacheKey, out PokemonDto pokemon))
+        {
+            var pokemonQuery = _db.Pokemon.AsQueryable();
+            var pokemonWithAbilities = pokemonQuery
+                .Include(pokemon => pokemon.Abilities)
+                .ThenInclude(ability => ability.Ability);
+            var pokemonWithGeneration = pokemonWithAbilities
+                .Include(pokemon => pokemon.Generation);
+            var pokemonWithImage = pokemonWithGeneration
+                .Include(pokemon => pokemon.Image);
+            var pokemonWithStats = pokemonWithImage
+                .Include(pokemon => pokemon.Stats)
+                .ThenInclude(stat => stat.Stats);
+            var pokemonWithTypes = pokemonWithStats
+                .Include(pokemon => pokemon.Types)
+                .ThenInclude(type => type.Type);
+            var pokemonFromDb = pokemonWithTypes
+                .FirstOrDefault(pokemon => pokemon.Id == id);
+
+            pokemon = MapPokemonById(pokemonFromDb);
+
+            _memoryCache.Set(cacheKey, pokemon,
+                new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5)));
+        }
+
+        return pokemon;
+    }
+
+    private static PokemonDto MapPokemonById(Pokemon? pokemonFromDb)
+    {
         return new PokemonDto
         {
             Id = pokemonFromDb.Id,

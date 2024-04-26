@@ -15,11 +15,16 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Views\Web\Details.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Web\Index.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
     </ItemGroup>
 
 </Project>
